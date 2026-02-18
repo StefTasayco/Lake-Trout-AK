@@ -1,6 +1,6 @@
 ---
 title: "Lake Clark"
-subtitle: "visualizing temperature data"
+subtitle: "Visualizing temperature data"
 author: "Stef Tasayco"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 number-sections: true
