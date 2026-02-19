@@ -1,0 +1,158 @@
+---
+title: "Lake Clark"
+subtitle: "Visualizing temperature data"
+author: "Stef Tasayco"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+number-sections: true
+number-offset: 0
+toc: true
+toc-depth: 2
+fig-width: 6
+fig-height: 4
+df-print: kable
+embed-resources: true
+format: 
+  html: 
+    highlight-style: dracula
+    code-tools: true
+    code-fold: true
+    code-summary: "Show the code"
+    code-line-numbers: true
+    code-link: true # only works if code-line-numbers: false
+    toc-float: true
+  docx: 
+    toc-title: "Table of contents"
+    fig-dpi: 600
+    execute:
+      echo: false
+knitr: 
+  opts_chunk: 
+    fig.path: "plots/"
+    fig.keep: "all"
+    dev: ['png', 'pdf']
+    dev.args: 
+      pdf: 
+        encoding: 'WinAnsi'
+        useDingbats: false
+#bibliography: references.bib # if using references, need a .bib file
+#csl: gpl.csl # find your preferred citation style at https://www.zotero.org/styles
+#css: style.css # optional html styling
+crossref:
+  fig-prefix: Fig.
+  tbl-prefix: Table
+  ref-hyperlink: true
+editor: source
+---
+
+# Setup
+
+Using `r R.version.string` , @R, and ggplot2 version `r packageVersion("ggplot2")` from the tidyverse [@tidyverse].
+
+```{r}
+#| label: setup
+#| message: false
+
+# load packages
+library(ggplot2)
+library(dplyr)
+library(writexl)
+library(janitor)
+library(readxl)
+library(here)
+
+# ensure here is available and set render root directory
+here::i_am("Lake-Clark.qmd")
+knitr::opts_knit$set(root.dir = here::here())
+dir.create(here::here("plots"), showWarnings = FALSE, recursive = TRUE)
+```
+
+# Data
+
+```{r}
+# load data
+surface_temp <- read_excel(here::here("data", "LAC_2020_surface.xlsx"))
+depth_bins <- read_excel(here::here("data", "LAC_2020_depth_bins.xlsx"))
+```
+
+# Plots {#sec-plots}
+
+## Scenario 1
+The purpose of scenario 1 is to investigate when 9 C becomes available at each lake (e.g. April 25 - Sept. 5) and use 9 C for all of those days. All other times, (spring, fall, winter) I will use the surface temperature “to approximate surrounding temperature of the modeled fish because larger lakes would be completely homothermous or homothermous to a great depth.”
+
+This approach is used by Yu-Chun Kao et. al.(2014).
+
+This is consistent with Pazzia et al. (2011), which states that “during the summer, lake trout were assumed to forage in deeper water (closer to 10 C). In winter, they were assumed to forage closer to the surface. 
+
+@fig-surface in @sec-plots shows only surface temperatures for Lake Clark.
+
+```{r}
+#| label: fig-surface
+#| fig-cap: This plot shows all the available surface water temperature data for 2020 in Lake Clark. The year 2020 is used because that is the year that lake trout data was collected. The freeze-up date can be seen at Jan 23rd and the break-up date on April 25th. The black line shows the 9 C cutoff. After mid-May (summer months), it is expected that lake trout will seek to stay around 9 C.
+#| fig-cap-location: bottom
+
+surface_temp |>
+  ggplot(aes(x = date)) +
+  geom_point(aes(y = t_surface, color = "Matt")) +
+  geom_point(aes(y = temp, color = "Krista")) +
+  #creates black line at 9C which is lake trout preferred temperature
+  geom_hline(
+    data = ~.x,
+    mapping = aes(yintercept = 9)
+  ) +
+  labs(
+    title = "Lake Clark – 2020 Surface Water Temperature",
+    x = "Date",
+    y = "Temperature (°C)",
+    color = "Dataset"
+  ) +
+  theme_grey()
+```
+
+
+@fig-depthbins in @sec-plots shows temperatures at different depth bins for Lake Clark.
+```{r}
+#| label: fig-depthbins
+#| fig-cap: This plot zooms into Krita's temp data from the first plot above, and only encapsulates 3 dates in the summer months. Again, the black line shows 9 C and each point is an average daily temperature. The goal was to visualize how far down the sun warms the water to 9 C during the summer. With this information, we can suspect that lake trout will travel down to 20 m below the surface to achieve their preferred temperature.
+#| fig-cap-location: bottom
+#| fig-subcap: Depth bin 5m is an average of depth bins 1, 2, 3, 4, and 5 m
+
+depth_bins |>
+  mutate(depth_bin = factor(depth_bin, levels = c(5, 10, 15, 20, 25, 30))) |>
+  ggplot(aes(x = date, y = mean_temp, color = depth_bin)) +
+  geom_point(size = 2.5) +
+  geom_hline(
+    data = ~.x,
+    mapping = aes(yintercept = 9)
+  ) +
+  labs(
+    x = "Date",
+    y = "Mean temperature (°C)",
+    color = "Depth (m)",
+    title = "Lake Clark - 2020 mean daily temperature by depth bin"
+  ) +
+  theme_grey()
+```
+
+### Conclusion for Scenario 1
+
+I will create a temperature file for Lake Clark using 9 C for days 139 (May 19th) through 346 (December 12th). For all other days, I will use the surface temperature data available for 2020. When ice freezes (Jan 24 - April 24) I will use 4 C. 
+
+# Tables
+
+@tbl-9C is very long so I kept it at the bottom.
+
+```{r}
+#| label: tbl-9C
+#| tbl-cap: This table shows all the dates at which the surface temperature is greater than or equal to 9 C. This starts on May 19th and ends on Dec. 12th.
+#| tbl-cap-location: top
+surface_temp |>
+  select(lake_name_matt, date, event, t_surface) |>
+  filter(t_surface >= 9)
+```
+
+# References
+
+::: {#refs}
+Yu-Chun Kao et. al.(2014):
+https://link.springer.com/article/10.1007/s10641-014-0352-6
+:::
