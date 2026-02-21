@@ -6,7 +6,7 @@ date: "`r format(Sys.Date(), '%d %b %Y')`"
 number-sections: true
 number-offset: 0
 toc: true
-toc-depth: 2
+toc-depth: 3
 fig-width: 6
 fig-height: 4
 df-print: kable
@@ -34,7 +34,7 @@ knitr:
       pdf: 
         encoding: 'WinAnsi'
         useDingbats: false
-#bibliography: references.bib # if using references, need a .bib file
+bibliography: references.bib # if using references, need a .bib file
 #csl: gpl.csl # find your preferred citation style at https://www.zotero.org/styles
 #css: style.css # optional html styling
 crossref:
@@ -46,7 +46,9 @@ editor: source
 
 # Setup
 
-Using `r R.version.string` , @R, and ggplot2 version `r packageVersion("ggplot2")` from the tidyverse [@tidyverse].
+Using `r R.version.string`.
+
+Access to download the spreadsheets used for this data can be done in the GitHub repository: <https://github.com/StefTasayco/Lake-Trout-AK.git>
 
 ```{r}
 #| label: setup
@@ -58,30 +60,70 @@ library(dplyr)
 library(writexl)
 library(janitor)
 library(readxl)
-library(here)
-
-# ensure here is available and set render root directory
-here::i_am("Lake-Clark.qmd")
-knitr::opts_knit$set(root.dir = here::here())
-dir.create(here::here("plots"), showWarnings = FALSE, recursive = TRUE)
 ```
+
+# Background
+
+Combinations of different scenarios are being used describe lake trout growth. Each scenario serves as a guide for constructing design profiles with different parameters experienced by the fish being grown in FB4. The goal is to compare the outputs of each of these design profiles to each other and to historical data collected (field observations).
+
+Temperature scenarios:
+
+-   ***Scenario 1***: Investigate when 9 C becomes available at each lake (e.g. days 196-215, summer months) and use 9 C for all of those days. For all other days, use surface temperature data. Lake trout assumed to move down in water column in summer to reach 9 C, and stay at surface during winter.
+
+-   ***Scenario 2***: By depth bin (e.g. in depth bin 30m, the avg temp = 6.46 C). Must find DOY of when the thermocline is fully set up for that lake. Only summer months modeled for this scenario (not 365 days)
+
+-   ***Scenario 3:*** Every DOY after ice-on and before ice off set to 4 C. Every other DOY, use surface temperature. 
+
+Diet scenarios:
+
+-   ***Scenario a***: From literature [@kao_temperature_2015] using diet schedule for a full year. Most likely using ages 7-9. Indigestible prey from literature as well.
+
+-   ***Scenario b***: 100% benthic (B), 0% prey fish (F) year round. B = 3500 J/g, F = 2256 J/g
+
+-   ***Scenario c:*** 80% benthic (B), 20% prey fish (F) year round. B = 3500 J/g, F = 2256 J/g
+
+-   ***Scenario d***: 60% benthic (B), 40% prey fish (F) year round. B = 3500 J/g, F = 2256 J/g
+
+-   ***Scenario e**:* 50% benthic (B), 50% prey fish (F) year round. B = 3500 J/g, F = 2256 J/g
+
+-   ***Scenario f:*** 40% benthic (B), 60% prey fish (F) year round. B = 3500 J/g, F = 2256 J/g
+
+-   ***Scenario g***: 20% benthic (B), 80% prey fish (F) year round. B = 3500 J/g, F = 2256 J/g
+
+-   ***Scenario h*****:** 0% benthic (B), 100% prey fish (F) year round. B = 3500 J/g, F = 2256 J/g
+
+Fit to Pmax vs fit to final weight:
+
+-   ***Scenario** 𝛂* : Fit to Pmax. Using @fig-predeq2  from @stewart_energetics_1983 .
+
+```{r}
+#| label: fig-predeq2
+#| fig-cap: "PREDEQ 2 (predator equation 2)- Pmax is set based on fish weight (g). Q = energy density. W = fish weight (g)"
+#| fig-align: "center"
+#| echo: false
+
+knitr::include_graphics("pics/Stewart_et_al.png")
+```
+
+-   ***Scenario** 𝛃* : Fit to final weight. Final weight = the weight at the next older age from NPS lake trout data.
 
 # Data
 
 ```{r}
 # load data
-surface_temp <- read_excel(here::here("data", "LAC_2020_surface.xlsx"))
-depth_bins <- read_excel(here::here("data", "LAC_2020_depth_bins.xlsx"))
+surface_temp <- read_excel("data/LAC_2020_surface.xlsx")
+depth_bins <- read_excel("data/LAC_2020_depth_bins.xlsx")
 ```
 
-# Plots {#sec-plots}
+## Plots {#sec-plots}
 
-## Scenario 1
+### Scenario 1
+
 The purpose of scenario 1 is to investigate when 9 C becomes available at each lake (e.g. April 25 - Sept. 5) and use 9 C for all of those days. All other times, (spring, fall, winter) I will use the surface temperature “to approximate surrounding temperature of the modeled fish because larger lakes would be completely homothermous or homothermous to a great depth.”
 
-This approach is used by Yu-Chun Kao et. al.(2014).
+This approach is used by @kao_temperature_2015.
 
-This is consistent with Pazzia et al. (2011), which states that “during the summer, lake trout were assumed to forage in deeper water (closer to 10 C). In winter, they were assumed to forage closer to the surface. 
+This is consistent with @pazzia_influence_2002, which states that “during the summer, lake trout were assumed to forage in deeper water (closer to 10 C). In winter, they were assumed to forage closer to the surface.
 
 @fig-surface in @sec-plots shows only surface temperatures for Lake Clark.
 
@@ -108,8 +150,8 @@ surface_temp |>
   theme_grey()
 ```
 
-
 @fig-depthbins in @sec-plots shows temperatures at different depth bins for Lake Clark.
+
 ```{r}
 #| label: fig-depthbins
 #| fig-cap: This plot zooms into Krita's temp data from the first plot above, and only encapsulates 3 dates in the summer months. Again, the black line shows 9 C and each point is an average daily temperature. The goal was to visualize how far down the sun warms the water to 9 C during the summer. With this information, we can suspect that lake trout will travel down to 20 m below the surface to achieve their preferred temperature.
@@ -135,15 +177,15 @@ depth_bins |>
 
 ### Conclusion for Scenario 1
 
-I will create a temperature file for Lake Clark using 9 C for days 139 (May 19th) through 346 (December 12th). For all other days, I will use the surface temperature data available for 2020. When ice freezes (Jan 24 - April 24) I will use 4 C. 
+I will create a temperature file for Lake Clark using 9 C for days 139 (May 19th) through 346 (December 12th). For all other days, I will use the surface temperature data available for 2020. When ice freezes (Jan 24 - April 24) I will use 4 C.
 
-# Tables
+## Tables
 
 @tbl-9C is very long so I kept it at the bottom.
 
 ```{r}
 #| label: tbl-9C
-#| tbl-cap: This table shows all the dates at which the surface temperature is greater than or equal to 9 C. This starts on May 19th and ends on Dec. 12th.
+#| tbl-cap: This table shows all the dates at which the surface temperature is greater than or equal to 9 C. In other words, when 9 C is available in Lake Clark. This starts on May 19th and ends on Dec. 12th.
 #| tbl-cap-location: top
 surface_temp |>
   select(lake_name_matt, date, event, t_surface) |>
@@ -153,6 +195,4 @@ surface_temp |>
 # References
 
 ::: {#refs}
-Yu-Chun Kao et. al.(2014):
-https://link.springer.com/article/10.1007/s10641-014-0352-6
 :::
