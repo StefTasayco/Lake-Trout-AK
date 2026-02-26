@@ -60,6 +60,12 @@ library(dplyr)
 library(writexl)
 library(janitor)
 library(readxl)
+library(forcats)
+library(RColorBrewer)
+
+# load color-blind friendly palettes
+my_paired <- RColorBrewer::brewer.pal(12, "Paired")
+my_paired13 <- colorRampPalette(brewer.pal(12, "Paired"))(13)
 ```
 
 # Background
@@ -181,16 +187,63 @@ I will create a temperature file for Lake Clark using 9 C for days 139 (May 19th
 
 ## Tables
 
-@tbl-9C is very long so I kept it at the bottom.
+So far, I don't have any tables to share but if I do, they will be here. 
 
 ```{r}
-#| label: tbl-9C
-#| tbl-cap: This table shows all the dates at which the surface temperature is greater than or equal to 9 C. In other words, when 9 C is available in Lake Clark. This starts on May 19th and ends on Dec. 12th.
-#| tbl-cap-location: top
-surface_temp |>
-  select(lake_name_matt, date, event, t_surface) |>
-  filter(t_surface >= 9)
+# #| label: tbl-9C
+# #| tbl-cap: This table shows all the dates at which the surface temperature is greater than or equal to 9 C. In other words, when 9 C is available in Lake Clark. This starts on May 19th and ends on Dec. 12th.
+# #| tbl-cap-location: top
+# surface_temp |>
+#   select(lake_name_matt, date, event, t_surface) |>
+#   filter(t_surface >= 9)
 ```
+
+# FB4 Outputs:
+
+```{r}
+#| label: fig-temp-weight
+#| fig-cap: "The average yearly growth of the entire cohort plotted with the temperature inputs for 365 days in 2020."
+#| fig-align: "center"
+#| echo: false
+
+knitr::include_graphics("pics/temp_weight.png")
+```
+
+```{r}
+# excel output data
+scen1_output <- read_excel("data/LAC_Scen1a_alpha_Daily_Output.xlsx")
+
+run_names <- readxl::read_excel("data/metadata.xlsx")
+run_names <- run_names |>
+  mutate(
+    Run_name = Run_name |>
+      as_factor() |>
+      fct_inorder(ordered = TRUE)
+  )
+scen1_output_clean <- scen1_output |>
+  left_join(
+    run_names,
+    by = "Run"
+  )
+
+daily_growth <- scen1_output_clean |>
+  ggplot() +
+  aes(x = Day, y = Weight.g, color = Run_name) +
+  geom_line() +
+  scale_color_manual(values = my_paired13) +
+  labs(
+    y = "Weight (g)",
+    color = "Age of fish",
+    title = "Year-long Lake Trout Growth by Age"
+  ) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5)
+  )
+
+daily_growth
+
+```
+
 
 # References
 
