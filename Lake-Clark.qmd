@@ -100,7 +100,7 @@ Diet scenarios:
 
 Fit to Pmax vs fit to final weight:
 
--   ***Scenario** 𝛂* : Fit to Pmax. Using @fig-predeq2  from @stewart_energetics_1983 .
+-   ***Scenario** 𝛂* : Fit to Pmax. Using @fig-predeq2 from @stewart_energetics_1983 .
 
 ```{r}
 #| label: fig-predeq2
@@ -187,7 +187,7 @@ I will create a temperature file for Lake Clark using 9 C for days 139 (May 19th
 
 ## Tables
 
-So far, I don't have any tables to share but if I do, they will be here. 
+So far, I don't have any tables to share but if I do, they will be here.
 
 ```{r}
 # #| label: tbl-9C
@@ -198,7 +198,9 @@ So far, I don't have any tables to share but if I do, they will be here.
 #   filter(t_surface >= 9)
 ```
 
-# FB4 Outputs:
+# FB4 Outputs
+
+**Year-long Lake Trout Growth by Age**: The following plots show the output of the design profile created using Scenario 1, scenario a, and scenario beta. The fish were fit to a final weight calculated using the weight at the next older age. Finally, the mean of each age of fish was taken, as well as 3 SDs above the mean and 3 SDs below the mean.
 
 ```{r}
 #| label: fig-temp-weight
@@ -211,7 +213,7 @@ knitr::include_graphics("pics/temp_weight.png")
 
 ```{r}
 # excel output data
-scen1_output <- read_excel("data/LAC_Scen1a_alpha_Daily_Output.xlsx")
+scen1_output <- read_excel("data/LAC_Scen1a_beta_Daily_Output.xlsx")
 
 run_names <- readxl::read_excel("data/metadata.xlsx")
 run_names <- run_names |>
@@ -226,24 +228,71 @@ scen1_output_clean <- scen1_output |>
     by = "Run"
   )
 
-daily_growth <- scen1_output_clean |>
-  ggplot() +
-  aes(x = Day, y = Weight.g, color = Run_name) +
-  geom_line() +
-  scale_color_manual(values = my_paired13) +
-  labs(
-    y = "Weight (g)",
-    color = "Age of fish",
-    title = "Year-long Lake Trout Growth by Age"
-  ) +
-  theme(
-    plot.title = element_text(face = "bold", hjust = 0.5)
-  )
+# daily_growth <- scen1_output_clean |>
+#   ggplot() +
+#   aes(x = Day, y = Weight.g, color = Run_name) +
+#   geom_line() +
+#   scale_color_manual(values = my_paired13) +
+#   labs(
+#     y = "Weight (g)",
+#     color = "Age of fish",
+#     title = "Year-long Lake Trout Growth by Age"
+#   ) +
+#   theme(
+#     plot.title = element_text(face = "bold", hjust = 0.5)
+#   )
 
-daily_growth
+# daily_growth
 
+age_prefixes <- c("Age 12", "Age 13", "Age 14", "Age 18", "Age 23")
+
+library(stringr)
+library(purrr)
+
+age_growth_plots <- age_prefixes |>
+  set_names() |>
+  purrr::map(function(prefix) {
+    df <- scen1_output_clean |>
+      filter(stringr::str_starts(as.character(Run_name), prefix))
+
+    if (nrow(df) == 0) {
+      return(
+        ggplot() +
+          labs(title = paste(prefix, "- no matching runs found")) +
+          theme_minimal()
+      )
+    }
+
+    p <- df |>
+      ggplot(aes(x = Day, y = Weight.g, color = Run_name, group = Run_name)) +
+      geom_line(linewidth = 0.8) +
+      scale_color_manual(values = my_paired) +
+      labs(
+        title = paste(prefix, "— daily growth"),
+        x = "Day",
+        y = "Weight (g)",
+        color = "Run name"
+      ) +
+      theme_minimal() +
+      theme(
+        plot.title = element_text(face = "bold", hjust = 0.5)
+      )
+
+    p
+  })
+
+age_growth_plots
 ```
 
+## FB4 Output Conclusions
+
+1.  Some lower 3 SDs were excluded because they went negative.
+
+2.  I believe the model could not calculate the growth of some runs because their final weight (he weight at the next older age) was a lot lower than their starting weight. Model might not understand why the fish lost so much weight in one year.
+
+    1.  Limitations of using observational data!
+
+3.  The average p-value for the entire cohort is 0.6888.
 
 # References
 
