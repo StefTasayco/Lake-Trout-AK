@@ -1,0 +1,98 @@
+---
+title: "Stef's Updates"
+subtitle: "3/9 - 3/14"
+author: "Stef Tasayco"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+number-sections: true
+number-offset: 0
+toc: true
+toc-depth: 3
+fig-width: 6
+fig-height: 4
+df-print: kable
+embed-resources: true
+format: 
+  html: 
+    highlight-style: dracula
+    code-tools: true
+    code-fold: true
+    code-summary: "Show the code"
+    code-line-numbers: true
+    code-link: true # only works if code-line-numbers: false
+    toc-float: true
+  pptx:
+    fig-format: jpeg
+    toc: true
+    toc-title: "Table of contents
+    execute: 
+      echo: false
+      warning: false
+  docx: 
+    toc-title: "Table of contents"
+    fig-dpi: 600
+    execute:
+      echo: false     
+knitr: 
+  opts_chunk: 
+    fig.path: "plots/"
+    fig.keep: "all"
+    dev: ['png', 'pdf']
+    dev.args: 
+      pdf: 
+        encoding: 'WinAnsi'
+        useDingbats: false
+bibliography: references.bib # if using references, need a .bib file
+#csl: gpl.csl # find your preferred citation style at https://www.zotero.org/styles
+#css: style.css # optional html styling
+crossref:
+  fig-prefix: Fig.
+  tbl-prefix: Table
+  ref-hyperlink: true
+editor: source
+---
+
+# Setup
+
+Using `r R.version.string`.
+
+Access to download the spreadsheets used for this data can be done in the GitHub repository: <https://github.com/StefTasayco/Lake-Trout-AK.git>
+
+```{r}
+#| label: setup
+#| message: false
+
+# set working directory
+setwd("C:/Users/stta6032/OneDrive - UCB-O365/Documents/GitHub/Lake-Trout-AK")
+
+# load packages
+library(ggplot2)
+library(dplyr)
+library(writexl)
+library(janitor)
+library(readxl)
+library(forcats)
+library(RColorBrewer)
+
+# load color-blind friendly palettes
+my_paired <- RColorBrewer::brewer.pal(12, "Paired")
+my_paired13 <- colorRampPalette(brewer.pal(12, "Paired"))(13)
+```
+
+# Background
+- 
+
+# Data
+
+```{r}
+# load data
+datafull <- read_excel("data/lake_trout_datafull.xlsx")
+```
+
+## 
+
+
+
+# References
+
+::: {#refs}
+:::
