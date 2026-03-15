@@ -1,9 +1,8 @@
 ---
 title: "Stef's Updates"
-subtitle: "3/9 - 3/14"
-author: "Stef Tasayco"
+subtitle: "March 9 - March 14"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
-number-sections: true
+number-sections: false
 number-offset: 0
 toc: true
 toc-depth: 3
@@ -22,11 +21,13 @@ format:
     toc-float: true
   pptx:
     fig-format: jpeg
-    toc: true
-    toc-title: "Table of contents
+    toc-title: "Table of contents"
+    knitr: 
+      opts_chunk: 
+        dev: "png"
+    reference-doc: template.pptx
     execute: 
       echo: false
-      warning: false
   docx: 
     toc-title: "Table of contents"
     fig-dpi: 600
@@ -35,7 +36,7 @@ format:
 knitr: 
   opts_chunk: 
     fig.path: "plots/"
-    fig.keep: "all"
+    fig.keep: "high"
     dev: ['png', 'pdf']
     dev.args: 
       pdf: 
@@ -51,18 +52,21 @@ crossref:
 editor: source
 ---
 
-# Setup
+# Code Accessibility
 
-Using `r R.version.string`.
+## [Working on GitHub to keep everything in one place]{.underline}
 
-Access to download the spreadsheets used for this data can be done in the GitHub repository: <https://github.com/StefTasayco/Lake-Trout-AK.git>
+-   Using `r R.version.string`.
+
+    -   Quarto is being used to create slides. This way, the R code for all plots in this presentation can be accessed at all times. The code is embedded in the pptx file, but they are not shown (see below).
+
+-   View the code and download the data used for this presentation in the GitHub repository: <https://github.com/StefTasayco/Lake-Trout-AK.git>
+
+    -   The file name is "Age-weight.qmd"
 
 ```{r}
 #| label: setup
 #| message: false
-
-# set working directory
-setwd("C:/Users/stta6032/OneDrive - UCB-O365/Documents/GitHub/Lake-Trout-AK")
 
 # load packages
 library(ggplot2)
@@ -78,8 +82,28 @@ my_paired <- RColorBrewer::brewer.pal(12, "Paired")
 my_paired13 <- colorRampPalette(brewer.pal(12, "Paired"))(13)
 ```
 
-# Background
-- 
+# Lake Trout Age-Weight
+
+**Boxplots of weight at age** capture the range of possible model input values.
+
+This analysis contributes to the approach that we discussed during the last Lake Trout team meeting where:
+
+-   We pick an age that has robust data (10, 20, 30).
+
+    -   Lake trout follow the [von Bertalanffy growth model](https://en.wikipedia.org/wiki/Von_Bertalanffy_function) (VBGM). aka their growth should plateau as they grow older.
+
+    -   Therefore, we expect that age 10 lake trout will have a higher growth and consumption rate than age 30 lake trout.
+
+-   Create design profile (one per age) using median and quartile weights. Run names for this design profile are shown in @tbl-runnames.
+
+```{r}
+#| label: tbl-runnames
+#| tbl-cap: Run names in each design profile/cohort and their interpretations.
+#| tbl-cap-location: bottom
+
+run_names <- read_excel("data/metadata.xlsx", sheet = "age_weight_runnames")
+run_names
+```
 
 # Data
 
@@ -89,8 +113,6 @@ datafull <- read_excel("data/lake_trout_datafull.xlsx")
 ```
 
 ## 
-
-
 
 # References
 
