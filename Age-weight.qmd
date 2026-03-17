@@ -91,10 +91,8 @@ datafull <- read_excel("data/lake_trout_datafull.xlsx")
 
 # Lake Trout Age-Weight
 
-:::: {.columns}
-
-::: {.column}
-
+::::: columns
+::: column
 **Boxplots of weight at age** capture the range of possible model input values.
 
 This analysis contributes to the approach that we discussed during the last Lake Trout team meeting where:
@@ -106,7 +104,7 @@ This analysis contributes to the approach that we discussed during the last Lake
   - Therefore, we expect that age 10 lake trout will have a higher growth and consumption rate than age 30 lake trout.
 :::
 
-::: {.column}
+::: column
 - The design profiles (one per age) are made using median and quartile weights for each age.
 
   - Run names for these design profiles are shown in the table.
@@ -122,8 +120,8 @@ run_names
 
 # Boxplots of weight at age
 
-:::: {.columns}
-::: {.column}
+::::: columns
+::: column
 ```{r}
 # data after 35 years of age is very scarce so I omitted it
 datafull <- datafull |>
@@ -153,7 +151,7 @@ boxplot
 ```
 :::
 
-::: {.column}
+::: column
 ```{r}
 # printing the summary stats for weight at age and omitting ages that contain less than 2 entries
 summary <- datafull |>
@@ -177,8 +175,7 @@ summary_stats <- knitr::include_graphics("pics/summary_stats.png")
 summary_stats
 ```
 :::
-
-::::
+:::::
 
 # General lake trout per lake
 
@@ -253,16 +250,16 @@ breakup_date <- LAC_surface_all |>
 
 # FB4 Output
 
-:::: {.coloumns}
-
-::: {.coloumn}
-
+::::: columns
+::: column
 ```{r}
 # load output data
 fb4_output <- read_excel("data/Generic_LAC_Scen1a_beta_Output.xlsx")
 fb4_output <- fb4_output |>
   clean_names()
 ```
+
+Key takeaways:
 
 - These two plots do not support my initial assumption that younger lake trout have a higher growth rates. Age 6 has the lowest growth rate, while age 23 has the highest growth rate.
 - The interpretations for each run name is consistent with their p-values. For example:
@@ -311,16 +308,14 @@ growth_rate_Jgd <- avg_growth_rate_per_day |>
 
 growth_rate_Jgd
 ```
-
 :::
 
-::: {.coloumn}
-
+::: column
 - Next steps:
- - Creating temp profiles for Kijik Lake and Chelle Lake using same methods as above.
- - Calculating growing degree days (GDD) for each lake and using GDD as a predictor variable to compare FB4 outputs (each output represents a lake) 
- - Looking through new temp data that Krista sent and plotting a thermocline for Lake Clark, Kijik, and Chelle first. 
- - Keep looking around in literature for more diet data. I've been using the same diet schedule and I want to play around with the diets more. 
+  - Creating temp profiles for Kijik Lake and Chelle Lake using same methods as above.
+  - Calculating growing degree days (GDD) for each lake and using GDD as a predictor variable to compare FB4 outputs (each output represents a lake)
+  - Looking through new temp data that Krista sent and plotting a thermocline for Lake Clark, Kijik, and Chelle first.
+  - Keep looking around in literature for more diet data. I've been using the same diet schedule and I want to play around with the diets more.
 
 ```{r}
 #doing the same thing as above but in g/g/d instead of J/g/d
@@ -360,10 +355,8 @@ growth_rate_ggd <- avg_growth_rate_ggd |>
 growth_rate_ggd
 
 ```
-
 :::
-
-::::
+:::::
 
 # References
 
